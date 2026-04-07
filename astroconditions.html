@@ -213,11 +213,7 @@ function lon(){return parseFloat(document.getElementById('lon').value)||13.83;}
 
 // ── Universal fetch — IPC proxy u Electronu, direktni fetch u browseru ────────
 async function apiFetch(url) {
-  if (window.astromax && window.astromax.fetchWeather) {
-    const r = await window.astromax.fetchWeather(url);
-    if (r && r.ok) return r.data;
-    throw new Error(r ? (r.error || 'IPC fetch failed') : 'IPC unavailable');
-  }
+  // Direktni browser fetch - radi u GitHub Pages kontekstu
   const r = await fetch(url);
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return await r.json();

@@ -913,36 +913,14 @@ async function getGPS() {
   }, () => alert('Could not get location. Check browser permissions.'));
 }
 
-try {
-            // Get Weather
-            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&current=relative_humidity_2m,wind_speed_10m,cloud_cover`).then(r => r.json());
-            
-            state.clouds = wRes.current.cloud_cover;
-            state.humid = wRes.current.relative_humidity_2m;
-            state.wind = wRes.current.wind_speed_10m;
-
-            // Reverse Geocode if not already named from search
-            if (document.getElementById('city-name').innerText === "Locating...") {
-                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${state.lat}&lon=${state.lon}&format=json`).then(r => r.json());
-                document.getElementById('city-name').innerText = geoRes.address.city || geoRes.address.town || "Remote Area";
-            }
-
-            document.getElementById('coords-display').innerText = `${state.lat.toFixed(4)}N / ${state.lon.toFixed(4)}E`;
-
-            // Logic Simulation
-            state.seeing = 1.3 + (state.wind / 18) + (state.humid / 180);
-            let estimatedSqm = 21.2;
-            if (state.clouds > 10) estimatedSqm -= (state.clouds / 25);
-            state.sqm = Math.max(16.5, estimatedSqm).toFixed(1);
-
-            updateUI();
-            calculate();
-        } catch (e) {
-            console.error("Refresh Error:", e);
-        } finally {
-            icon.classList.remove('loader');
-        }
-    }
+// ═══════════════════════════════════════════════════════
+// WEATHER — Open-Meteo (free, no key)
+// ═══════════════════════════════════════════════════════
+async function fetchWeather() {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat()}&longitude=${lon()}&current=temperature_2m,relative_humidity_2m,dew_point_2m,cloud_cover,wind_speed_10m,precipitation&hourly=cloud_cover,temperature_2m,dew_point_2m&timezone=auto&forecast_days=1`;
+  const r = await fetch(url);
+  return await r.json();
+}
 
 // ═══════════════════════════════════════════════════════
 // SEEING — 7timer (free)
